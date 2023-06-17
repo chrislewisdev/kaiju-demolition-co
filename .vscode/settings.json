@@ -1,0 +1,11 @@
+{
+    "C_Cpp.default.includePath": [
+        "C:\\tools\\gbdk\\include"
+    ],
+    "files.associations": {
+        "waving.h": "c",
+        "stdio.h": "c",
+        "platform.h": "c",
+        "gb.h": "c"
+    }
+}
