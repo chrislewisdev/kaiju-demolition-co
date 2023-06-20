@@ -1,0 +1,6 @@
+- Allow control over direction of shot
+- Prevent destruction of ground tiles
+- More test levels
+- Add some smoke/bang FX to destroyed tiles
+- Add some screen shake
+- Set up a scoring system
