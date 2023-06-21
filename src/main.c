@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <gbdk/platform.h>
 #include "gen/building-bg.h"
+#include "gen/empty-scene.h"
 #include "gen/ball.h"
 #include "gen/pointer.h"
 
@@ -11,6 +12,7 @@
 #define BALL_SPEED_INITIAL  25
 #define BALL_SPEED_ACCEL    10
 #define TILE_SIZE       8
+#define GROUND_TILE_Y   14
 
 /*
 * Global state
@@ -37,25 +39,33 @@ void ballDoCollision() {
 
     uint8_t tile_under = get_bkg_tile_xy(tile_x, tile_y + 1);
     if (tile_under != 0 && ball_y_speed > 0) {
-        set_bkg_tile_xy(tile_x, tile_y + 1, 0);
-        ball_y_speed = -ball_y_speed;
+        if (tile_y + 1 <= GROUND_TILE_Y) {
+            set_bkg_tile_xy(tile_x, tile_y + 1, 0);
+        }
+        ball_y_speed = -ball_y_speed / 2;
     }
 
     uint8_t tile_above = get_bkg_tile_xy(tile_x, tile_y - 1);
     if (tile_above != 0 && ball_y_speed >> 8 < 0) {
-        set_bkg_tile_xy(tile_x, tile_y - 1, 0);
+        if (tile_y - 1 <= GROUND_TILE_Y) {
+            set_bkg_tile_xy(tile_x, tile_y - 1, 0);
+        }
         ball_y_speed = -ball_y_speed;
     }
     
     uint8_t tile_right = get_bkg_tile_xy(tile_x + 1, tile_y);
     if (tile_right != 0 && ball_x_speed > 0) {
-        set_bkg_tile_xy(tile_x + 1, tile_y, 0);
+        if (tile_y <= GROUND_TILE_Y) {
+            set_bkg_tile_xy(tile_x + 1, tile_y, 0);
+        }
         ball_x_speed = -ball_x_speed;
     }
     
     uint8_t tile_left = get_bkg_tile_xy(tile_x - 1, tile_y);
     if (tile_left != 0 && ball_x_speed < 0) {
-        set_bkg_tile_xy(tile_x - 1, tile_y, 0);
+        if (tile_y <= GROUND_TILE_Y) {
+            set_bkg_tile_xy(tile_x - 1, tile_y, 0);
+        }
         ball_x_speed = -ball_x_speed;
     }
 }
@@ -66,7 +76,7 @@ void ballDoMovement() {
     ball_x += ball_x_speed;
 
     // If out of bounds, reset the ball
-    if (ball_x < 8 || ball_x > 160 || ball_y < 4 || (ball_y >> 8) > 144) {
+    if (ball_x < 8 || ball_x > 160 || ball_y < 4 || (ball_y >> 8) > 129) {
         isReleased = FALSE;
         ball_y_speed = BALL_SPEED_INITIAL;
     }
@@ -109,6 +119,8 @@ void ballDoUpdate() {
 void main() {
     set_bkg_data(0, building_bg_TILE_COUNT, building_bg_tiles);
     set_bkg_tiles(0, 0, 20, 18, building_bg_map);
+    // set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
+    // set_bkg_tiles(0, 0, 20, 18, empty_scene_map);
     SHOW_BKG;
 
     set_sprite_data(0, ball_TILE_COUNT, ball_tiles);
