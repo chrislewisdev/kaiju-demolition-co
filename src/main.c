@@ -3,12 +3,14 @@
 #include <gbdk/platform.h>
 #include "gen/building-bg.h"
 #include "gen/ball.h"
+#include "gen/pointer.h"
 
-#define BALL_SPRITE 0
-#define CURSOR_Y    16
-#define BALL_SPEED_INITIAL 25
+#define BALL_SPRITE     0
+#define POINTER_SPRITE  1
+#define CURSOR_Y        16
+#define BALL_SPEED_INITIAL  25
 #define BALL_SPEED_ACCEL    10
-#define TILE_SIZE   8
+#define TILE_SIZE       8
 
 /*
 * Global state
@@ -75,8 +77,10 @@ void ballDoMovement() {
 void ballDoPlayerControls() {
     if (input & J_RIGHT && !(previousInput & J_RIGHT)) {
         cursorPosition += TILE_SIZE;
+        ball_x_speed = 1;
     } else if (input & J_LEFT && !(previousInput & J_LEFT)) {
         cursorPosition -= TILE_SIZE;
+        ball_x_speed = -1;
     }
 
     if (input & J_A && !(previousInput & J_A)) {
@@ -90,15 +94,19 @@ void ballDoPlayerControls() {
 void ballDoUpdate() {
     if (isReleased) {
         ballDoMovement();
+        hide_sprite(POINTER_SPRITE);
     } else {
         ballDoPlayerControls();
+        
+        move_sprite(POINTER_SPRITE, cursorPosition, 24);
+        set_sprite_prop(POINTER_SPRITE, ball_x_speed > 0 ? 0 : S_FLIPX);
     }
 
     // Consider moving this into a graphics update function if we start separating things out
     move_sprite(BALL_SPRITE, ball_x, (ball_y >> 8));
 }
 
-void main(void) {
+void main() {
     set_bkg_data(0, building_bg_TILE_COUNT, building_bg_tiles);
     set_bkg_tiles(0, 0, 20, 18, building_bg_map);
     SHOW_BKG;
@@ -106,6 +114,11 @@ void main(void) {
     set_sprite_data(0, ball_TILE_COUNT, ball_tiles);
     set_sprite_tile(BALL_SPRITE, 0);
     move_sprite(BALL_SPRITE, ball_x, ball_y);
+
+    set_sprite_data(1, pointer_TILE_COUNT, pointer_tiles);
+    set_sprite_tile(POINTER_SPRITE, 1);
+    move_sprite(POINTER_SPRITE, 16, 16);
+
     SHOW_SPRITES;
 
     while (1) {
