@@ -1,4 +1,3 @@
-- More test levels
-- Add some smoke/bang FX to destroyed tiles
 - Add some screen shake
+- More test levels
 - Set up a scoring system

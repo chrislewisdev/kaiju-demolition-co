@@ -5,14 +5,23 @@
 #include "gen/empty-scene.h"
 #include "gen/ball.h"
 #include "gen/pointer.h"
+#include "gen/smoke.h"
 
 #define BALL_SPRITE     0
 #define POINTER_SPRITE  1
+#define SMOKE_SPRITE_START  2
+#define SMOKE_SPRITE_RANGE  4
 #define CURSOR_Y        16
 #define BALL_SPEED_INITIAL  25
 #define BALL_SPEED_ACCEL    10
 #define TILE_SIZE       8
 #define GROUND_TILE_Y   14
+
+typedef struct SmokeEffect {
+    uint8_t x, y;
+    uint8_t isDisplayed;
+    uint8_t timer;
+} SmokeEffect;
 
 /*
 * Global state
@@ -27,6 +36,19 @@ int8_t ball_x_speed = 1;
 // True when the player is setting up their shot, false otherwise.
 uint8_t isReleased = FALSE;
 uint8_t input = 0, previousInput = 0;
+SmokeEffect smokeEffects[SMOKE_SPRITE_RANGE];
+
+void spawnSmokeEffect(uint8_t x, uint8_t y) {
+    for (uint8_t i = 0; i < SMOKE_SPRITE_RANGE; i++) {
+        if (!smokeEffects[i].isDisplayed) {
+            smokeEffects[i].isDisplayed = TRUE;
+            smokeEffects[i].x = x;
+            smokeEffects[i].y = y;
+            smokeEffects[i].timer = 20;
+            return;
+        }
+    }
+}
 
 void ballDoCollision() {
     uint8_t tile_x = (ball_x - 8) / TILE_SIZE;
@@ -41,6 +63,7 @@ void ballDoCollision() {
     if (tile_under != 0 && ball_y_speed > 0) {
         if (tile_y + 1 <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x, tile_y + 1, 0);
+            spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y + 1 + 2) * TILE_SIZE);
         }
         ball_y_speed = -ball_y_speed / 2;
     }
@@ -49,6 +72,7 @@ void ballDoCollision() {
     if (tile_above != 0 && ball_y_speed >> 8 < 0) {
         if (tile_y - 1 <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x, tile_y - 1, 0);
+            spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y - 1 + 2) * TILE_SIZE);
         }
         ball_y_speed = -ball_y_speed;
     }
@@ -57,6 +81,7 @@ void ballDoCollision() {
     if (tile_right != 0 && ball_x_speed > 0) {
         if (tile_y <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x + 1, tile_y, 0);
+            spawnSmokeEffect((tile_x + 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
         }
         ball_x_speed = -ball_x_speed;
     }
@@ -65,6 +90,7 @@ void ballDoCollision() {
     if (tile_left != 0 && ball_x_speed < 0) {
         if (tile_y <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x - 1, tile_y, 0);
+            spawnSmokeEffect((tile_x - 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
         }
         ball_x_speed = -ball_x_speed;
     }
@@ -116,6 +142,26 @@ void ballDoUpdate() {
     move_sprite(BALL_SPRITE, ball_x, (ball_y >> 8));
 }
 
+void smokeDoUpdate() {
+    for (uint8_t i = 0; i < SMOKE_SPRITE_RANGE; i++) {
+        if (smokeEffects[i].isDisplayed) {
+            set_sprite_tile(SMOKE_SPRITE_START + i, 2);
+            move_sprite(SMOKE_SPRITE_START + i, smokeEffects[i].x, smokeEffects[i].y);
+
+            smokeEffects[i].timer--;
+            // if (smokeEffects[i].timer % 4 == 0) {
+            //     smokeEffects[i].x -= 1;
+            //     smokeEffects[i].y -= 2;
+            // }
+            if (smokeEffects[i].timer == 0) {
+                smokeEffects[i].isDisplayed = FALSE;
+            }
+        } else {
+            hide_sprite(SMOKE_SPRITE_START + i);
+        }
+    }
+}
+
 void main() {
     set_bkg_data(0, building_bg_TILE_COUNT, building_bg_tiles);
     set_bkg_tiles(0, 0, 20, 18, building_bg_map);
@@ -131,6 +177,8 @@ void main() {
     set_sprite_tile(POINTER_SPRITE, 1);
     move_sprite(POINTER_SPRITE, 16, 16);
 
+    set_sprite_data(2, smoke_TILE_COUNT, smoke_tiles);
+
     SHOW_SPRITES;
 
     while (1) {
@@ -140,5 +188,6 @@ void main() {
         input = joypad();
 
         ballDoUpdate();
+        smokeDoUpdate();
     }
 }
