@@ -57,7 +57,7 @@ $(OBJDIR)/%.s:	$(SRCDIR)/%.c
 	$(LCC) $(LCCFLAGS) -S -o $@ $<
 
 $(GENDIR)/%.c:	$(SPRITEDIR)/%.png | gen/
-	$(PNG2ASSET) $< -spr8x8 -c $@ 
+	$(PNG2ASSET) $< -spr8x8 -keep_palette_order -c $@ 
 
 $(GENDIR)/%.c:	$(MAPDIR)/%.png | gen/
 	$(PNG2ASSET) $< -map -noflip -c $@ 

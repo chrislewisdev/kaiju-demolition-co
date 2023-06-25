@@ -44,7 +44,7 @@ void spawnSmokeEffect(uint8_t x, uint8_t y) {
             smokeEffects[i].isDisplayed = TRUE;
             smokeEffects[i].x = x;
             smokeEffects[i].y = y;
-            smokeEffects[i].timer = 20;
+            smokeEffects[i].timer = 15;
             return;
         }
     }
@@ -149,10 +149,6 @@ void smokeDoUpdate() {
             move_sprite(SMOKE_SPRITE_START + i, smokeEffects[i].x, smokeEffects[i].y);
 
             smokeEffects[i].timer--;
-            // if (smokeEffects[i].timer % 4 == 0) {
-            //     smokeEffects[i].x -= 1;
-            //     smokeEffects[i].y -= 2;
-            // }
             if (smokeEffects[i].timer == 0) {
                 smokeEffects[i].isDisplayed = FALSE;
             }

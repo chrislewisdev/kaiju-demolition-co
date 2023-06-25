@@ -1,3 +1,8 @@
 - Add some screen shake
-- More test levels
 - Set up a scoring system
+- Menus - title screen, level select
+- Upgrades or additional destruction items to be purchased
+- Saving progress
+- More test levels
+- SFX
+- Music
