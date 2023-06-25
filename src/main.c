@@ -9,6 +9,7 @@
 #include "gen/smoke.h"
 #include "gen/hud.h"
 #include "gen/numbers.h"
+#include "gen/title.h"
 
 #define BALL_SPRITE     0
 #define POINTER_SPRITE  1
@@ -22,6 +23,8 @@
 #define BKG_TILES_BASE      0
 #define NUMBERS_TILES_BASE  20
 #define WIN_TILES_BASE      30
+#define STATE_TITLE 0
+#define STATE_GAME  1
 
 typedef struct SmokeEffect {
     uint8_t x, y;
@@ -46,6 +49,7 @@ uint8_t input = 0, previousInput = 0;
 SmokeEffect smokeEffects[SMOKE_SPRITE_RANGE];
 uint8_t screenShakeStrength = 0;
 uint8_t score = 0;
+uint8_t applicationState = STATE_TITLE;
 
 void spawnSmokeEffect(uint8_t x, uint8_t y) {
     for (uint8_t i = 0; i < SMOKE_SPRITE_RANGE; i++) {
@@ -201,7 +205,7 @@ void scoreDoUpdate() {
     set_win_tile_xy(9, 0, NUMBERS_TILES_BASE + third_digit);
 }
 
-void main() {
+void loadGraphics() {
     set_bkg_data(BKG_TILES_BASE, building_bg_TILE_COUNT, building_bg_tiles);
     set_bkg_tiles(0, 0, 21, 19, building_bg_map);
     // set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
@@ -224,8 +228,18 @@ void main() {
     move_sprite(POINTER_SPRITE, 16, 16);
 
     set_sprite_data(2, smoke_TILE_COUNT, smoke_tiles);
-
     SHOW_SPRITES;
+}
+
+void stateInitTitle() {
+    set_bkg_data(0, title_TILE_COUNT, title_tiles);
+    set_bkg_tiles(0, 0, 20, 18, title_map);
+    SHOW_BKG;
+}
+
+void main() {
+    // loadGraphics();
+    stateInitTitle();
 
     while (1) {
         wait_vbl_done();
@@ -233,9 +247,13 @@ void main() {
         previousInput = input;
         input = joypad();
 
-        ballDoUpdate();
-        smokeDoUpdate();
-        screenShakeDoUpdate();
-        scoreDoUpdate();
+        if (applicationState == STATE_TITLE) {
+
+        } else if (applicationState == STATE_GAME) {
+            ballDoUpdate();
+            smokeDoUpdate();
+            screenShakeDoUpdate();
+            scoreDoUpdate();
+        }
     }
 }
