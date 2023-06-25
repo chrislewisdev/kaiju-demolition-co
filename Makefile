@@ -60,7 +60,7 @@ $(GENDIR)/%.c:	$(SPRITEDIR)/%.png | gen/
 	$(PNG2ASSET) $< -spr8x8 -keep_palette_order -c $@ 
 
 $(GENDIR)/%.c:	$(MAPDIR)/%.png | gen/
-	$(PNG2ASSET) $< -map -noflip -c $@ 
+	$(PNG2ASSET) $< -map -keep_palette_order -noflip -c $@ 
 
 # Link the compiled object files into a .gb ROM file
 $(BINS):	$(OBJS)

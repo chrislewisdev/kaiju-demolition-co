@@ -7,6 +7,8 @@
 #include "gen/ball.h"
 #include "gen/pointer.h"
 #include "gen/smoke.h"
+#include "gen/hud.h"
+#include "gen/numbers.h"
 
 #define BALL_SPRITE     0
 #define POINTER_SPRITE  1
@@ -17,6 +19,9 @@
 #define BALL_SPEED_ACCEL    10
 #define TILE_SIZE       8
 #define GROUND_TILE_Y   14
+#define BKG_TILES_BASE      0
+#define NUMBERS_TILES_BASE  20
+#define WIN_TILES_BASE      30
 
 typedef struct SmokeEffect {
     uint8_t x, y;
@@ -40,6 +45,7 @@ uint8_t input = 0, previousInput = 0;
 // Storage for all temporary smoke effects
 SmokeEffect smokeEffects[SMOKE_SPRITE_RANGE];
 uint8_t screenShakeStrength = 0;
+uint8_t score = 0;
 
 void spawnSmokeEffect(uint8_t x, uint8_t y) {
     for (uint8_t i = 0; i < SMOKE_SPRITE_RANGE; i++) {
@@ -72,6 +78,7 @@ void ballDoCollision() {
             set_bkg_tile_xy(tile_x, tile_y + 1, 0);
             spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y + 1 + 2) * TILE_SIZE);
             shakeScreen();
+            score++;
         }
         ball_y_speed = -ball_y_speed / 2;
     }
@@ -82,6 +89,7 @@ void ballDoCollision() {
             set_bkg_tile_xy(tile_x, tile_y - 1, 0);
             spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y - 1 + 2) * TILE_SIZE);
             shakeScreen();
+            score++;
         }
         ball_y_speed = -ball_y_speed;
     }
@@ -92,6 +100,7 @@ void ballDoCollision() {
             set_bkg_tile_xy(tile_x + 1, tile_y, 0);
             spawnSmokeEffect((tile_x + 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
             shakeScreen();
+            score++;
         }
         ball_x_speed = -ball_x_speed;
     }
@@ -102,6 +111,7 @@ void ballDoCollision() {
             set_bkg_tile_xy(tile_x - 1, tile_y, 0);
             spawnSmokeEffect((tile_x - 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
             shakeScreen();
+            score++;
         }
         ball_x_speed = -ball_x_speed;
     }
@@ -176,12 +186,34 @@ void screenShakeDoUpdate() {
     }
 }
 
+void scoreDoUpdate() {
+    // Zero out all values first
+    for (uint8_t i = 0; i < 7; i++) {
+        set_win_tile_xy(7 + i, 0, NUMBERS_TILES_BASE);
+    }
+
+    // Set three digits accordingly
+    uint8_t first_digit = score % 10;
+    set_win_tile_xy(11, 0, NUMBERS_TILES_BASE + first_digit);
+    uint8_t second_digit = score / 10 % 10;
+    set_win_tile_xy(10, 0, NUMBERS_TILES_BASE + second_digit);
+    uint8_t third_digit = score / 100 % 10;
+    set_win_tile_xy(9, 0, NUMBERS_TILES_BASE + third_digit);
+}
+
 void main() {
-    set_bkg_data(0, building_bg_TILE_COUNT, building_bg_tiles);
+    set_bkg_data(BKG_TILES_BASE, building_bg_TILE_COUNT, building_bg_tiles);
     set_bkg_tiles(0, 0, 21, 19, building_bg_map);
     // set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
     // set_bkg_tiles(0, 0, 20, 18, empty_scene_map);
     SHOW_BKG;
+
+    set_win_data(NUMBERS_TILES_BASE, numbers_TILE_COUNT, numbers_tiles);
+
+    set_win_data(WIN_TILES_BASE, hud_TILE_COUNT, hud_tiles);
+    set_win_based_tiles(0, 0, 20, 1, hud_map, WIN_TILES_BASE);
+    move_win(0, 136);
+    SHOW_WIN;
 
     set_sprite_data(0, ball_TILE_COUNT, ball_tiles);
     set_sprite_tile(BALL_SPRITE, 0);
@@ -204,5 +236,6 @@ void main() {
         ballDoUpdate();
         smokeDoUpdate();
         screenShakeDoUpdate();
+        scoreDoUpdate();
     }
 }
