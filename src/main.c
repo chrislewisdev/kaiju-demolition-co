@@ -1,6 +1,7 @@
 #include <gb/gb.h>
 #include <stdint.h>
 #include <gbdk/platform.h>
+// Generated files
 #include "gen/building-bg.h"
 #include "gen/empty-scene.h"
 #include "gen/ball.h"
@@ -36,7 +37,9 @@ int8_t ball_x_speed = 1;
 // True when the player is setting up their shot, false otherwise.
 uint8_t isReleased = FALSE;
 uint8_t input = 0, previousInput = 0;
+// Storage for all temporary smoke effects
 SmokeEffect smokeEffects[SMOKE_SPRITE_RANGE];
+uint8_t screenShakeStrength = 0;
 
 void spawnSmokeEffect(uint8_t x, uint8_t y) {
     for (uint8_t i = 0; i < SMOKE_SPRITE_RANGE; i++) {
@@ -48,6 +51,10 @@ void spawnSmokeEffect(uint8_t x, uint8_t y) {
             return;
         }
     }
+}
+
+void shakeScreen() {
+    screenShakeStrength = 1;
 }
 
 void ballDoCollision() {
@@ -64,6 +71,7 @@ void ballDoCollision() {
         if (tile_y + 1 <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x, tile_y + 1, 0);
             spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y + 1 + 2) * TILE_SIZE);
+            shakeScreen();
         }
         ball_y_speed = -ball_y_speed / 2;
     }
@@ -73,6 +81,7 @@ void ballDoCollision() {
         if (tile_y - 1 <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x, tile_y - 1, 0);
             spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y - 1 + 2) * TILE_SIZE);
+            shakeScreen();
         }
         ball_y_speed = -ball_y_speed;
     }
@@ -82,6 +91,7 @@ void ballDoCollision() {
         if (tile_y <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x + 1, tile_y, 0);
             spawnSmokeEffect((tile_x + 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
+            shakeScreen();
         }
         ball_x_speed = -ball_x_speed;
     }
@@ -91,6 +101,7 @@ void ballDoCollision() {
         if (tile_y <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x - 1, tile_y, 0);
             spawnSmokeEffect((tile_x - 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
+            shakeScreen();
         }
         ball_x_speed = -ball_x_speed;
     }
@@ -158,9 +169,16 @@ void smokeDoUpdate() {
     }
 }
 
+void screenShakeDoUpdate() {
+    move_bkg(screenShakeStrength, screenShakeStrength);
+    if (screenShakeStrength > 0) {
+        screenShakeStrength--;
+    }
+}
+
 void main() {
     set_bkg_data(0, building_bg_TILE_COUNT, building_bg_tiles);
-    set_bkg_tiles(0, 0, 20, 18, building_bg_map);
+    set_bkg_tiles(0, 0, 21, 19, building_bg_map);
     // set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
     // set_bkg_tiles(0, 0, 20, 18, empty_scene_map);
     SHOW_BKG;
@@ -185,5 +203,6 @@ void main() {
 
         ballDoUpdate();
         smokeDoUpdate();
+        screenShakeDoUpdate();
     }
 }
