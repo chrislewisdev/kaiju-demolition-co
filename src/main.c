@@ -10,6 +10,8 @@
 #include "gen/hud.h"
 #include "gen/numbers.h"
 #include "gen/title.h"
+#include "gen/level-select.h"
+#include "gen/cursor.h"
 
 #define BALL_SPRITE     0
 #define POINTER_SPRITE  1
@@ -21,10 +23,13 @@
 #define TILE_SIZE       8
 #define GROUND_TILE_Y   14
 #define BKG_TILES_BASE      0
-#define NUMBERS_TILES_BASE  20
+#define NUMBERS_TILES_BASE  40
 #define WIN_TILES_BASE      30
-#define STATE_TITLE 0
-#define STATE_GAME  1
+#define GAME_MAX_TURNS      3
+// States
+#define STATE_TITLE         0
+#define STATE_GAME          1
+#define STATE_LEVEL_SELECT  2
 
 typedef struct SmokeEffect {
     uint8_t x, y;
@@ -50,6 +55,7 @@ SmokeEffect smokeEffects[SMOKE_SPRITE_RANGE];
 uint8_t screenShakeStrength = 0;
 uint8_t score = 0;
 uint8_t applicationState = STATE_TITLE;
+uint8_t turnsTaken = 0;
 
 void spawnSmokeEffect(uint8_t x, uint8_t y) {
     for (uint8_t i = 0; i < SMOKE_SPRITE_RANGE; i++) {
@@ -146,6 +152,7 @@ void ballDoPlayerControls() {
 
     if (input & J_A && !(previousInput & J_A)) {
         isReleased = TRUE;
+        turnsTaken++;
     }
 
     ball_x = cursorPosition;
@@ -205,7 +212,7 @@ void scoreDoUpdate() {
     set_win_tile_xy(9, 0, NUMBERS_TILES_BASE + third_digit);
 }
 
-void loadGraphics() {
+void stateInitGame() {
     set_bkg_data(BKG_TILES_BASE, building_bg_TILE_COUNT, building_bg_tiles);
     set_bkg_tiles(0, 0, 21, 19, building_bg_map);
     // set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
@@ -229,6 +236,8 @@ void loadGraphics() {
 
     set_sprite_data(2, smoke_TILE_COUNT, smoke_tiles);
     SHOW_SPRITES;
+
+    turnsTaken = 0;
 }
 
 void stateInitTitle() {
@@ -237,8 +246,68 @@ void stateInitTitle() {
     SHOW_BKG;
 }
 
+void stateChangeToGame() {
+    applicationState = STATE_GAME;
+    stateInitGame();
+}
+
+void stateChangeToLevelSelect() {
+    applicationState = STATE_LEVEL_SELECT;
+    stateInitLevelSelect();
+}
+
+void stateUpdateGame() {
+    ballDoUpdate();
+    smokeDoUpdate();
+    screenShakeDoUpdate();
+    scoreDoUpdate();
+
+    // Check for state change here
+    if (turnsTaken >= GAME_MAX_TURNS && !isReleased) {
+        stateChangeToLevelSelect();
+    }
+}
+
+void stateInitLevelSelect() {
+    set_bkg_data(0, level_select_TILE_COUNT, level_select_tiles);
+    set_bkg_tiles(0, 0, 20, 18, level_select_map);
+    SHOW_BKG;
+    HIDE_WIN;
+
+    set_bkg_data(NUMBERS_TILES_BASE, numbers_TILE_COUNT, numbers_tiles);
+
+    hide_sprites_range(0, 10);
+    set_sprite_data(0, cursor_TILE_COUNT, cursor_tiles);
+    set_sprite_tile(0, 0);
+    move_sprite(0, 24, 72);
+    SHOW_SPRITES;
+
+    // Update the score display
+    uint8_t x = 6, y = 15;
+    for (uint8_t i = 0; i < 7; i++) {
+        set_bkg_tile_xy(x + i, y, NUMBERS_TILES_BASE);
+    }
+    uint8_t first_digit = score % 10;
+    set_bkg_tile_xy(x + 4, y, NUMBERS_TILES_BASE + first_digit);
+    uint8_t second_digit = score / 10 % 10;
+    set_bkg_tile_xy(x + 3, y, NUMBERS_TILES_BASE + second_digit);
+    uint8_t third_digit = score / 100 % 10;
+    set_bkg_tile_xy(x + 2, y, NUMBERS_TILES_BASE + third_digit);
+}
+
+void stateUpdateLevelSelect() {
+    if (input & J_A && !(previousInput & J_A)) {
+        stateChangeToGame();
+    }
+}
+
+void stateUpdateTitle() {
+    if (input & J_START && !(previousInput & J_START)) {
+        stateChangeToLevelSelect();
+    }
+}
+
 void main() {
-    // loadGraphics();
     stateInitTitle();
 
     while (1) {
@@ -248,12 +317,11 @@ void main() {
         input = joypad();
 
         if (applicationState == STATE_TITLE) {
-
+            stateUpdateTitle();
+        } else if (applicationState == STATE_LEVEL_SELECT) {
+            stateUpdateLevelSelect();
         } else if (applicationState == STATE_GAME) {
-            ballDoUpdate();
-            smokeDoUpdate();
-            screenShakeDoUpdate();
-            scoreDoUpdate();
+            stateUpdateGame();
         }
     }
 }

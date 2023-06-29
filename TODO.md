@@ -9,7 +9,6 @@
 
 
 Menus:
-- Title screen
 - Level select
 - End-of-level score display
 - Shop screen
