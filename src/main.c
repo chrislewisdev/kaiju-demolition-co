@@ -23,7 +23,7 @@
 #define TILE_SIZE       8
 #define GROUND_TILE_Y   14
 #define BKG_TILES_BASE      0
-#define NUMBERS_TILES_BASE  40
+#define NUMBERS_TILES_BASE  50
 #define WIN_TILES_BASE      30
 #define GAME_MAX_TURNS      3
 // States
@@ -56,6 +56,8 @@ uint8_t screenShakeStrength = 0;
 uint8_t score = 0;
 uint8_t applicationState = STATE_TITLE;
 uint8_t turnsTaken = 0;
+uint8_t selectedLevelIndex = 0;
+uint16_t unlockedLevels = 0b0000000000000011;
 
 void spawnSmokeEffect(uint8_t x, uint8_t y) {
     for (uint8_t i = 0; i < SMOKE_SPRITE_RANGE; i++) {
@@ -213,10 +215,13 @@ void scoreDoUpdate() {
 }
 
 void stateInitGame() {
-    set_bkg_data(BKG_TILES_BASE, building_bg_TILE_COUNT, building_bg_tiles);
-    set_bkg_tiles(0, 0, 21, 19, building_bg_map);
-    // set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
-    // set_bkg_tiles(0, 0, 20, 18, empty_scene_map);
+    if (selectedLevelIndex == 0) {
+        set_bkg_data(BKG_TILES_BASE, building_bg_TILE_COUNT, building_bg_tiles);
+        set_bkg_tiles(0, 0, 21, 19, building_bg_map);
+    } else if (selectedLevelIndex == 1) {
+        set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
+        set_bkg_tiles(0, 0, 20, 18, empty_scene_map);
+    }
     SHOW_BKG;
 
     set_win_data(NUMBERS_TILES_BASE, numbers_TILE_COUNT, numbers_tiles);
@@ -296,9 +301,25 @@ void stateInitLevelSelect() {
 }
 
 void stateUpdateLevelSelect() {
-    if (input & J_A && !(previousInput & J_A)) {
+    if (input & J_A && !(previousInput & J_A) && (unlockedLevels >> selectedLevelIndex & 1)) {
         stateChangeToGame();
     }
+
+    if (input & J_LEFT && !(previousInput & J_LEFT) && selectedLevelIndex > 0) {
+        selectedLevelIndex--;
+    } else if (input & J_RIGHT && !(previousInput & J_RIGHT) && selectedLevelIndex < 14) {
+        selectedLevelIndex++;
+    } else if (input & J_UP && !(previousInput & J_UP) && selectedLevelIndex >= 5) {
+        selectedLevelIndex -= 5;
+    } else if (input & J_DOWN && !(previousInput & J_DOWN) && selectedLevelIndex <= 9) {
+        selectedLevelIndex += 5;
+    }
+
+    const uint8_t xStart = 24;
+    const uint8_t yStart = 72;
+    uint8_t x = xStart + (selectedLevelIndex % 5) * 24;
+    uint8_t y = yStart + (selectedLevelIndex / 5) * 24;
+    move_sprite(0, x, y);
 }
 
 void stateUpdateTitle() {
