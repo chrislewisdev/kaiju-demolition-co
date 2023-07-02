@@ -6,6 +6,7 @@
         "waving.h": "c",
         "stdio.h": "c",
         "platform.h": "c",
-        "gb.h": "c"
+        "gb.h": "c",
+        "level-select.h": "c"
     }
 }
