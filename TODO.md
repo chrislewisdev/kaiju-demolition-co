@@ -1,4 +1,3 @@
-- Split out main.c into multiple files
 - Menus - title screen, level select
 - Upgrades or additional destruction items to be purchased
 - Saving progress

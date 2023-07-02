@@ -5,6 +5,18 @@
 #include "gen/level-select-screen.h"
 #include "gen/cursor.h"
 
+void renderNumber(uint8_t value, uint8_t x, uint8_t y) {
+    for (uint8_t i = 0; i < 5; i++) {
+        set_bkg_tile_xy(x + i, y, NUMBERS_TILES_BASE);
+    }
+    uint8_t first_digit = value % 10;
+    set_bkg_tile_xy(x + 2, y, NUMBERS_TILES_BASE + first_digit);
+    uint8_t second_digit = value / 10 % 10;
+    set_bkg_tile_xy(x + 1, y, NUMBERS_TILES_BASE + second_digit);
+    uint8_t third_digit = value / 100 % 10;
+    set_bkg_tile_xy(x, y, NUMBERS_TILES_BASE + third_digit);
+}
+
 void stateInitLevelSelect() {
     set_bkg_data(0, level_select_screen_TILE_COUNT, level_select_screen_tiles);
     set_bkg_tiles(0, 0, 20, 18, level_select_screen_map);
@@ -18,25 +30,9 @@ void stateInitLevelSelect() {
     set_sprite_tile(0, 0);
     move_sprite(0, 24, 72);
     SHOW_SPRITES;
-
-    // Update the score display
-    uint8_t x = 6, y = 15;
-    for (uint8_t i = 0; i < 7; i++) {
-        set_bkg_tile_xy(x + i, y, NUMBERS_TILES_BASE);
-    }
-    uint8_t first_digit = score % 10;
-    set_bkg_tile_xy(x + 4, y, NUMBERS_TILES_BASE + first_digit);
-    uint8_t second_digit = score / 10 % 10;
-    set_bkg_tile_xy(x + 3, y, NUMBERS_TILES_BASE + second_digit);
-    uint8_t third_digit = score / 100 % 10;
-    set_bkg_tile_xy(x + 2, y, NUMBERS_TILES_BASE + third_digit);
 }
 
 void stateUpdateLevelSelect() {
-    if (input & J_A && !(previousInput & J_A) && (unlockedLevels >> selectedLevelIndex & 1)) {
-        stateChangeToGame();
-    }
-
     if (input & J_LEFT && !(previousInput & J_LEFT) && selectedLevelIndex > 0) {
         selectedLevelIndex--;
     } else if (input & J_RIGHT && !(previousInput & J_RIGHT) && selectedLevelIndex < 14) {
@@ -47,9 +43,25 @@ void stateUpdateLevelSelect() {
         selectedLevelIndex += 5;
     }
 
+    // Move cursor
     const uint8_t xStart = 24;
     const uint8_t yStart = 72;
     uint8_t x = xStart + (selectedLevelIndex % 5) * 24;
     uint8_t y = yStart + (selectedLevelIndex / 5) * 24;
     move_sprite(0, x, y);
+
+    // Update cost display
+    uint8_t cost = selectedLevelIndex >= 2 ? selectedLevelIndex * 10 : 0;
+    renderNumber(cost, 12, 16);
+
+    if (input & J_A && !(previousInput & J_A)) {
+        if (unlockedLevels >> selectedLevelIndex & 1) {
+            stateChangeToGame();
+            return;
+        } else if (score >= cost) {
+            score -= cost;
+        }
+    }
+
+    renderNumber(score, 4, 16);
 }

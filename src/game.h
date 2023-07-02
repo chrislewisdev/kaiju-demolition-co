@@ -19,5 +19,6 @@ typedef struct SmokeEffect {
 
 void stateInitGame();
 void stateUpdateGame();
+void someNewFunction();
 
 #endif
