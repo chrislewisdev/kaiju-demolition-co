@@ -8,6 +8,7 @@
         "platform.h": "c",
         "gb.h": "c",
         "level-select.h": "c",
-        "game.h": "c"
+        "game.h": "c",
+        "numbers.h": "c"
     }
 }

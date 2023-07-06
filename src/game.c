@@ -32,7 +32,7 @@ void stateInitGame() {
     if (selectedLevelIndex == 0) {
         set_bkg_data(BKG_TILES_BASE, building_bg_TILE_COUNT, building_bg_tiles);
         set_bkg_tiles(0, 0, 21, 19, building_bg_map);
-    } else if (selectedLevelIndex == 1) {
+    } else if (selectedLevelIndex >= 1) {
         set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
         set_bkg_tiles(0, 0, 20, 18, empty_scene_map);
     }
