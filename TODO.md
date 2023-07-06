@@ -1,7 +1,6 @@
-- Menus - title screen, level select
+- More test levels
 - Upgrades or additional destruction items to be purchased
 - Saving progress
-- More test levels
 - SFX
 - Music
 
