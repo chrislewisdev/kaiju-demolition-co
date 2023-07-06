@@ -7,7 +7,7 @@
 #define POINTER_SPRITE      1
 #define SMOKE_SPRITE_START  2
 #define SMOKE_SPRITE_RANGE  4
-#define CURSOR_Y            16
+#define CURSOR_Y            20
 #define BALL_SPEED_INITIAL  25
 #define BALL_SPEED_ACCEL    10
 
@@ -19,6 +19,5 @@ typedef struct SmokeEffect {
 
 void stateInitGame();
 void stateUpdateGame();
-void someNewFunction();
 
 #endif

@@ -7,6 +7,7 @@
         "stdio.h": "c",
         "platform.h": "c",
         "gb.h": "c",
-        "level-select.h": "c"
+        "level-select.h": "c",
+        "game.h": "c"
     }
 }

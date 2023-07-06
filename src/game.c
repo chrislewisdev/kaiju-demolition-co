@@ -8,6 +8,9 @@
 #include "gen/smoke.h"
 #include "gen/hud.h"
 #include "gen/numbers.h"
+#include "gen/kaiju.h"
+
+#define BALL_ANIMATION_FRAMES   5
 
 uint8_t screenShakeStrength = 0;
 uint8_t turnsTaken = 0;
@@ -22,6 +25,8 @@ int8_t ball_x_speed = 1;
 uint8_t isReleased = FALSE;
 // Storage for all temporary smoke effects
 SmokeEffect smokeEffects[SMOKE_SPRITE_RANGE];
+// Ball animation variables
+uint8_t ballAnimationIndex = 0, ballAnimationTimer = BALL_ANIMATION_FRAMES;
 
 void stateInitGame() {
     if (selectedLevelIndex == 0) {
@@ -41,14 +46,16 @@ void stateInitGame() {
     SHOW_WIN;
 
     set_sprite_data(0, ball_TILE_COUNT, ball_tiles);
-    set_sprite_tile(BALL_SPRITE, 0);
-    move_sprite(BALL_SPRITE, ball_x, ball_y);
 
     set_sprite_data(1, pointer_TILE_COUNT, pointer_tiles);
     set_sprite_tile(POINTER_SPRITE, 1);
     move_sprite(POINTER_SPRITE, 16, 16);
 
     set_sprite_data(2, smoke_TILE_COUNT, smoke_tiles);
+    set_sprite_data(3, kaiju_TILE_COUNT, kaiju_tiles);
+
+    set_sprite_tile(BALL_SPRITE, 3);
+    move_sprite(BALL_SPRITE, ball_x, ball_y);
     SHOW_SPRITES;
 
     turnsTaken = 0;
@@ -87,7 +94,7 @@ void ballDoCollision() {
     */
 
     uint8_t tile_under = get_bkg_tile_xy(tile_x, tile_y + 1);
-    if (tile_under != 0 && ball_y_speed > 0) {
+    if (tile_under > 1 && ball_y_speed > 0) {
         if (tile_y + 1 <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x, tile_y + 1, 0);
             spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y + 1 + 2) * TILE_SIZE);
@@ -98,7 +105,7 @@ void ballDoCollision() {
     }
 
     uint8_t tile_above = get_bkg_tile_xy(tile_x, tile_y - 1);
-    if (tile_above != 0 && ball_y_speed >> 8 < 0) {
+    if (tile_above > 1 && ball_y_speed >> 8 < 0) {
         if (tile_y - 1 <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x, tile_y - 1, 0);
             spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y - 1 + 2) * TILE_SIZE);
@@ -109,7 +116,7 @@ void ballDoCollision() {
     }
     
     uint8_t tile_right = get_bkg_tile_xy(tile_x + 1, tile_y);
-    if (tile_right != 0 && ball_x_speed > 0) {
+    if (tile_right > 1 && ball_x_speed > 0) {
         if (tile_y <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x + 1, tile_y, 0);
             spawnSmokeEffect((tile_x + 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
@@ -120,7 +127,7 @@ void ballDoCollision() {
     }
     
     uint8_t tile_left = get_bkg_tile_xy(tile_x - 1, tile_y);
-    if (tile_left != 0 && ball_x_speed < 0) {
+    if (tile_left > 1 && ball_x_speed < 0) {
         if (tile_y <= GROUND_TILE_Y) {
             set_bkg_tile_xy(tile_x - 1, tile_y, 0);
             spawnSmokeEffect((tile_x - 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
@@ -167,11 +174,20 @@ void ballDoUpdate() {
     if (isReleased) {
         ballDoMovement();
         hide_sprite(POINTER_SPRITE);
+
+        ballAnimationTimer--;
+        if (ballAnimationTimer == 0) {
+            ballAnimationIndex = ballAnimationIndex == 1 ? 0 : 1;
+            ballAnimationTimer = BALL_ANIMATION_FRAMES;
+        }
+        set_sprite_tile(BALL_SPRITE, 4 + ballAnimationIndex);
     } else {
         ballDoPlayerControls();
         
-        move_sprite(POINTER_SPRITE, cursorPosition, 24);
+        move_sprite(POINTER_SPRITE, cursorPosition, 28);
         set_sprite_prop(POINTER_SPRITE, ball_x_speed > 0 ? 0 : S_FLIPX);
+        set_sprite_prop(BALL_SPRITE, ball_x_speed > 0 ? 0 : S_FLIPX);
+        set_sprite_tile(BALL_SPRITE, 3);
     }
 
     // Consider moving this into a graphics update function if we start separating things out

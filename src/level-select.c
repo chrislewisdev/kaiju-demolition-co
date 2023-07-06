@@ -28,6 +28,7 @@ void stateInitLevelSelect() {
     hide_sprites_range(0, 10);
     set_sprite_data(0, cursor_TILE_COUNT, cursor_tiles);
     set_sprite_tile(0, 0);
+    set_sprite_prop(0, 0);
     move_sprite(0, 24, 72);
     SHOW_SPRITES;
 }
