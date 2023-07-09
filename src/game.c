@@ -89,6 +89,25 @@ void spawnSmokeEffect(uint8_t x, uint8_t y) {
     }
 }
 
+void handleCollision(uint8_t x, uint8_t y, uint8_t tileId) {
+    set_bkg_tile_xy(x, y, 0);
+    spawnSmokeEffect((x + 1) * TILE_SIZE, (y + 2) * TILE_SIZE);
+    shakeScreen();
+    score++;
+
+    if (tileId == 13) {
+        for (int8_t dy = -2; dy <= 2; dy++) {
+            for (int8_t dx = -2; dx <= 2; dx++) {
+                if (dx == 0 && dy == 0) continue;
+                if (y + dy > GROUND_TILE_Y) continue;
+
+                uint8_t id = get_bkg_tile_xy(x + dx, y + dy);
+                handleCollision(x + dx, y + dy, id);
+            }
+        }
+    }
+}
+
 void ballDoCollision() {
     uint8_t tile_x = (ball_x - 8) / TILE_SIZE;
     uint8_t tile_y = ((ball_y >> 8) - 16) / TILE_SIZE;
@@ -101,10 +120,7 @@ void ballDoCollision() {
     uint8_t tile_under = get_bkg_tile_xy(tile_x, tile_y + 1);
     if (tile_under > 1 && ball_y_speed > 0) {
         if (tile_y + 1 <= GROUND_TILE_Y) {
-            set_bkg_tile_xy(tile_x, tile_y + 1, 0);
-            spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y + 1 + 2) * TILE_SIZE);
-            shakeScreen();
-            score++;
+            handleCollision(tile_x, tile_y + 1, tile_under);
         }
         ball_y_speed = -ball_y_speed / 2;
     }
@@ -112,10 +128,7 @@ void ballDoCollision() {
     uint8_t tile_above = get_bkg_tile_xy(tile_x, tile_y - 1);
     if (tile_above > 1 && ball_y_speed >> 8 < 0) {
         if (tile_y - 1 <= GROUND_TILE_Y) {
-            set_bkg_tile_xy(tile_x, tile_y - 1, 0);
-            spawnSmokeEffect((tile_x + 1) * TILE_SIZE, (tile_y - 1 + 2) * TILE_SIZE);
-            shakeScreen();
-            score++;
+            handleCollision(tile_x, tile_y - 1, tile_above);
         }
         ball_y_speed = -ball_y_speed;
     }
@@ -123,10 +136,7 @@ void ballDoCollision() {
     uint8_t tile_right = get_bkg_tile_xy(tile_x + 1, tile_y);
     if (tile_right > 1 && ball_x_speed > 0) {
         if (tile_y <= GROUND_TILE_Y) {
-            set_bkg_tile_xy(tile_x + 1, tile_y, 0);
-            spawnSmokeEffect((tile_x + 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
-            shakeScreen();
-            score++;
+            handleCollision(tile_x + 1, tile_y, tile_right);
         }
         ball_x_speed = -ball_x_speed;
     }
@@ -134,10 +144,7 @@ void ballDoCollision() {
     uint8_t tile_left = get_bkg_tile_xy(tile_x - 1, tile_y);
     if (tile_left > 1 && ball_x_speed < 0) {
         if (tile_y <= GROUND_TILE_Y) {
-            set_bkg_tile_xy(tile_x - 1, tile_y, 0);
-            spawnSmokeEffect((tile_x - 1 + 1) * TILE_SIZE, (tile_y + 2) * TILE_SIZE);
-            shakeScreen();
-            score++;
+            handleCollision(tile_x - 1, tile_y, tile_left);
         }
         ball_x_speed = -ball_x_speed;
     }
