@@ -10,6 +10,8 @@
 #include "gen/numbers.h"
 #include "gen/kaiju.h"
 #include "gen/level3.h"
+#include "gen/level0.h"
+#include "gen/tileset.h"
 
 #define BALL_ANIMATION_FRAMES   5
 
@@ -31,8 +33,8 @@ uint8_t ballAnimationIndex = 0, ballAnimationTimer = BALL_ANIMATION_FRAMES;
 
 void stateInitGame() {
     if (selectedLevelIndex == 0) {
-        set_bkg_data(BKG_TILES_BASE, building_bg_TILE_COUNT, building_bg_tiles);
-        set_bkg_tiles(0, 0, 21, 19, building_bg_map);
+        set_bkg_data(BKG_TILES_BASE, tileset_TILE_COUNT, tileset_tiles);
+        set_bkg_tiles(0, 0, 21, 19, level0_map);
     } else if (selectedLevelIndex == 2) {
         set_bkg_data(BKG_TILES_BASE, level3_TILE_COUNT, level3_tiles);
         set_bkg_tiles(0, 0, 21, 19, level3_map);

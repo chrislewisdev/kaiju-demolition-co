@@ -9,6 +9,7 @@
         "gb.h": "c",
         "level-select.h": "c",
         "game.h": "c",
-        "numbers.h": "c"
+        "numbers.h": "c",
+        "level0.h": "c"
     }
 }
