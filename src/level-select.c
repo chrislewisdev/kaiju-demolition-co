@@ -19,6 +19,22 @@ void renderNumber(uint8_t value, uint8_t x, uint8_t y) {
     set_bkg_tile_xy(x, y, NUMBERS_TILES_BASE + third_digit);
 }
 
+void showUnlockedLevels() {
+    for (uint8_t levelId = 2; levelId < 15; levelId++) {
+        if (IS_UNLOCKED(levelId)) {
+            const uint8_t xStart = 3;
+            const uint8_t yStart = 6;
+            uint8_t x = xStart + (levelId % 5) * 3;
+            uint8_t y = yStart + (levelId / 5) * 3;
+
+            set_bkg_tile_xy(x, y, 0x1d);
+            set_bkg_tile_xy(x+1, y, 0x1e);
+            set_bkg_tile_xy(x, y+1, 0x23);
+            set_bkg_tile_xy(x+1, y+1, 0x24);
+        }
+    }
+}
+
 void stateInitLevelSelect() {
     set_bkg_data(0, level_select_screen_TILE_COUNT, level_select_screen_tiles);
     set_bkg_tiles(0, 0, 20, 18, level_select_screen_map);
@@ -35,22 +51,6 @@ void stateInitLevelSelect() {
     SHOW_SPRITES;
 
     showUnlockedLevels();
-}
-
-void showUnlockedLevels() {
-    for (uint8_t levelId = 2; levelId < 15; levelId++) {
-        if (IS_UNLOCKED(levelId)) {
-            const uint8_t xStart = 3;
-            const uint8_t yStart = 6;
-            uint8_t x = xStart + (levelId % 5) * 3;
-            uint8_t y = yStart + (levelId / 5) * 3;
-
-            set_bkg_tile_xy(x, y, 0x1d);
-            set_bkg_tile_xy(x+1, y, 0x1e);
-            set_bkg_tile_xy(x, y+1, 0x23);
-            set_bkg_tile_xy(x+1, y+1, 0x24);
-        }
-    }
 }
 
 void stateUpdateLevelSelect() {

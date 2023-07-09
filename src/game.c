@@ -1,16 +1,15 @@
 #include "global.h"
 #include "game.h"
 // Generated files
-#include "gen/building-bg.h"
-#include "gen/empty-scene.h"
 #include "gen/ball.h"
 #include "gen/pointer.h"
 #include "gen/smoke.h"
 #include "gen/hud.h"
 #include "gen/numbers.h"
 #include "gen/kaiju.h"
-#include "gen/level3.h"
 #include "gen/level0.h"
+#include "gen/level1.h"
+#include "gen/level2.h"
 #include "gen/tileset.h"
 
 #define BALL_ANIMATION_FRAMES   5
@@ -36,11 +35,11 @@ void stateInitGame() {
         set_bkg_data(BKG_TILES_BASE, tileset_TILE_COUNT, tileset_tiles);
         set_bkg_tiles(0, 0, 21, 19, level0_map);
     } else if (selectedLevelIndex == 2) {
-        set_bkg_data(BKG_TILES_BASE, level3_TILE_COUNT, level3_tiles);
-        set_bkg_tiles(0, 0, 21, 19, level3_map);
+        set_bkg_data(BKG_TILES_BASE, tileset_TILE_COUNT, tileset_tiles);
+        set_bkg_tiles(0, 0, 21, 19, level2_map);
     } else {
-        set_bkg_data(0, empty_scene_TILE_COUNT, empty_scene_tiles);
-        set_bkg_tiles(0, 0, 20, 18, empty_scene_map);
+        set_bkg_data(BKG_TILES_BASE, tileset_TILE_COUNT, tileset_tiles);
+        set_bkg_tiles(0, 0, 21, 19, level1_map);
     }
     SHOW_BKG;
 
