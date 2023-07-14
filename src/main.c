@@ -11,10 +11,8 @@
 * Global state
 */ 
 uint8_t input = 0, previousInput = 0;
-uint8_t score = 10;
 uint8_t applicationState = STATE_TITLE;
 uint8_t selectedLevelIndex = 0;
-uint16_t unlockedLevels = 0b0000000000000011;
 
 void stateChangeToGame() {
     applicationState = STATE_GAME;
@@ -27,6 +25,9 @@ void stateChangeToLevelSelect() {
 }
 
 void main() {
+    ENABLE_RAM_MBC5;
+    initialiseMemory();
+
     stateInitTitle();
 
     while (1) {

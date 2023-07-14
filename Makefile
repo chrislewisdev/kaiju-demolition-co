@@ -49,6 +49,9 @@ all:	$(OBJDIR)/ $(BINS)
 
 .PRECIOUS: $(PNG_CSOURCES) $(MAP_CSOURCES) $(LEVEL_CSOURCES)
 
+$(OBJDIR)/save.o:	$(SRCDIR)/save.c
+	$(LCC) $(LCCFLAGS) -Wf-MMD -Wf-ba0 -c -o $@ $<
+
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c $(PNG_CSOURCES)
 	$(LCC) $(LCCFLAGS) -Wf-MMD -c -o $@ $<
@@ -76,7 +79,7 @@ $(GENDIR)/%.c:	$(LEVELDIR)/%.png | gen/
 
 # Link the compiled object files into a .gb ROM file
 $(BINS):	$(OBJS)
-	$(LCC) $(LCCFLAGS) -o $(BINS) $(OBJS)
+	$(LCC) $(LCCFLAGS) -Wm-yt0x1B -Wl-yo2 -Wl-ya4 -o $(BINS) $(OBJS)
 
 $(OBJDIR)/:
 	mkdir -p $(OBJDIR)

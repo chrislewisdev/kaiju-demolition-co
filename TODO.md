@@ -1,9 +1,9 @@
-- Lay foundations for tile-based effects
+- Add more special tiles
 - More test levels
-- Upgrades or additional destruction items to be purchased
 - Saving progress
 - SFX
 - Music
+- Upgrades or additional destruction items to be purchased
 
 
 

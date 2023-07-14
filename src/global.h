@@ -14,12 +14,15 @@
 #define STATE_GAME          1
 #define STATE_LEVEL_SELECT  2
 
+// Persistent data
 extern uint8_t score;
+extern uint16_t unlockedLevels;
+
 extern uint8_t input, previousInput;
 extern uint8_t selectedLevelIndex;
-extern uint16_t unlockedLevels;
 
 void stateChangeToGame();
 void stateChangeToLevelSelect();
+void initialiseMemory();
 
 #endif
