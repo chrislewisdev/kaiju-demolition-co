@@ -5,7 +5,9 @@
 
 # If you move this project you can change the directory 
 # to match your GBDK root directory (ex: GBDK_HOME = "C:/GBDK/"
-GBDK_HOME = /home/clh/gbdk
+GBDK_HOME = /home/chris/tools/gbdk
+JAVA = /home/chris/tools/amazon-corretto-17/bin/java
+EMULICIOUS = /home/chris/tools/emulicious/Emulicious.jar
 
 LCC = $(GBDK_HOME)/bin/lcc
 PNG2ASSET = $(GBDK_HOME)/bin/png2asset
@@ -89,6 +91,9 @@ gen/:
 
 clean:
 	rm -rf $(OBJDIR) gen
+
+run: build/kaiju.gb
+	$(JAVA) -jar $(EMULICIOUS) build/kaiju.gb
 
 # '-include' will add in our .d files without erroring if one does not exist
 -include $(DFILES)
