@@ -1,6 +1,7 @@
 #include <gb/gb.h>
 #include <stdint.h>
 #include <gbdk/platform.h>
+#include "hUGEDriver.h"
 // Local modules
 #include "global.h"
 #include "game.h"
@@ -13,6 +14,8 @@
 uint8_t input = 0, previousInput = 0;
 uint8_t applicationState = STATE_TITLE;
 uint8_t selectedLevelIndex = 0;
+
+extern const hUGESong_t placeholder;
 
 void stateChangeToGame() {
     applicationState = STATE_GAME;
@@ -30,8 +33,15 @@ void main() {
 
     stateInitTitle();
 
+    NR52_REG = 0x80;
+    NR51_REG = 0xFF;
+    NR50_REG = 0x77;
+    hUGE_init(&placeholder);
+
     while (1) {
         wait_vbl_done();
+
+        hUGE_dosound();
 
         previousInput = input;
         input = joypad();

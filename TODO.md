@@ -1,8 +1,6 @@
 - Add more special tiles
-- More test levels
-- Saving progress
 - SFX
-- Music
+- More test levels
 - Upgrades or additional destruction items to be purchased
 
 

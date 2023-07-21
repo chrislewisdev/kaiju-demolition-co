@@ -51,6 +51,7 @@ all:	$(OBJDIR)/ $(BINS)
 
 .PRECIOUS: $(PNG_CSOURCES) $(MAP_CSOURCES) $(LEVEL_CSOURCES)
 
+# Assign save.c to RAM bank 0 on the MBC
 $(OBJDIR)/save.o:	$(SRCDIR)/save.c
 	$(LCC) $(LCCFLAGS) -Wf-MMD -Wf-ba0 -c -o $@ $<
 
@@ -81,7 +82,7 @@ $(GENDIR)/%.c:	$(LEVELDIR)/%.png | gen/
 
 # Link the compiled object files into a .gb ROM file
 $(BINS):	$(OBJS)
-	$(LCC) $(LCCFLAGS) -Wm-yt0x1B -Wl-yo2 -Wl-ya4 -o $(BINS) $(OBJS)
+	$(LCC) $(LCCFLAGS) -Wm-yt0x1B -Wl-yo2 -Wl-ya4 -o $(BINS) $(OBJS) lib/hUGEDriver.o
 
 $(OBJDIR)/:
 	mkdir -p $(OBJDIR)

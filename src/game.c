@@ -90,11 +90,6 @@ void spawnSmokeEffect(uint8_t x, uint8_t y) {
 }
 
 void handleCollision(uint8_t x, uint8_t y, uint8_t tileId) {
-    set_bkg_tile_xy(x, y, 0);
-    spawnSmokeEffect((x + 1) * TILE_SIZE, (y + 2) * TILE_SIZE);
-    shakeScreen();
-    score++;
-
     if (tileId == 13) {
         for (int8_t dy = -2; dy <= 2; dy++) {
             for (int8_t dx = -2; dx <= 2; dx++) {
@@ -105,7 +100,16 @@ void handleCollision(uint8_t x, uint8_t y, uint8_t tileId) {
                 handleCollision(x + dx, y + dy, id);
             }
         }
+    } else if (tileId == 14) {
+        ball_y_speed = -2 << 8;
+        // Don't blow up this tile.
+        return;
     }
+
+    set_bkg_tile_xy(x, y, 0);
+    spawnSmokeEffect((x + 1) * TILE_SIZE, (y + 2) * TILE_SIZE);
+    shakeScreen();
+    score++;
 }
 
 void ballDoCollision() {
@@ -119,34 +123,34 @@ void ballDoCollision() {
 
     uint8_t tile_under = get_bkg_tile_xy(tile_x, tile_y + 1);
     if (tile_under > 1 && ball_y_speed > 0) {
+        ball_y_speed = -ball_y_speed / 2;
         if (tile_y + 1 <= GROUND_TILE_Y) {
             handleCollision(tile_x, tile_y + 1, tile_under);
         }
-        ball_y_speed = -ball_y_speed / 2;
     }
 
     uint8_t tile_above = get_bkg_tile_xy(tile_x, tile_y - 1);
     if (tile_above > 1 && ball_y_speed >> 8 < 0) {
+        ball_y_speed = -ball_y_speed;
         if (tile_y - 1 <= GROUND_TILE_Y) {
             handleCollision(tile_x, tile_y - 1, tile_above);
         }
-        ball_y_speed = -ball_y_speed;
     }
     
     uint8_t tile_right = get_bkg_tile_xy(tile_x + 1, tile_y);
     if (tile_right > 1 && ball_x_speed > 0) {
+        ball_x_speed = -ball_x_speed;
         if (tile_y <= GROUND_TILE_Y) {
             handleCollision(tile_x + 1, tile_y, tile_right);
         }
-        ball_x_speed = -ball_x_speed;
     }
     
     uint8_t tile_left = get_bkg_tile_xy(tile_x - 1, tile_y);
     if (tile_left > 1 && ball_x_speed < 0) {
+        ball_x_speed = -ball_x_speed;
         if (tile_y <= GROUND_TILE_Y) {
             handleCollision(tile_x - 1, tile_y, tile_left);
         }
-        ball_x_speed = -ball_x_speed;
     }
 }
 
@@ -155,8 +159,14 @@ void ballDoMovement() {
     ball_y += ball_y_speed;
     ball_x += ball_x_speed;
 
+    if (ball_x < 8 && ball_x_speed < 0) {
+        ball_x_speed = -ball_x_speed;
+    } else if (ball_x > 160 && ball_x_speed > 0) {
+        ball_x_speed = -ball_x_speed;
+    }
+
     // If out of bounds, reset the ball
-    if (ball_x < 8 || ball_x > 160 || ball_y < 4 || (ball_y >> 8) > 129) {
+    if (ball_y < 4 || (ball_y >> 8) > 129) {
         isReleased = FALSE;
         ball_y_speed = BALL_SPEED_INITIAL;
     }
